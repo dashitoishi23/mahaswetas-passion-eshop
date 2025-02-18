@@ -1,4 +1,4 @@
-import { products, orders, type Product, type InsertProduct, type Order, type InsertOrder } from "@shared/schema";
+import { products, orders, admins, type Product, type InsertProduct, type Order, type InsertOrder, type Admin, type InsertAdmin } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -8,6 +8,11 @@ export interface IStorage {
   getProduct(id: number): Promise<Product | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrders(): Promise<Order[]>;
+  getAdmin(id: number): Promise<Admin | undefined>;
+  getAdminByUsername(username: string): Promise<Admin | undefined>;
+  getAdminByEmail(email: string): Promise<Admin | undefined>;
+  updateAdminResetToken(id: number, token: string | null, expiry: Date | null): Promise<void>;
+  initializeAdmin(admin: InsertAdmin): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -37,6 +42,40 @@ export class DatabaseStorage implements IStorage {
       .values(insertOrder)
       .returning();
     return order;
+  }
+
+  async getAdmin(id: number): Promise<Admin | undefined> {
+    const [admin] = await db.select()
+      .from(admins)
+      .where(eq(admins.id, id));
+    return admin;
+  }
+
+  async getAdminByUsername(username: string): Promise<Admin | undefined> {
+    const [admin] = await db.select()
+      .from(admins)
+      .where(eq(admins.username, username));
+    return admin;
+  }
+
+  async getAdminByEmail(email: string): Promise<Admin | undefined> {
+    const [admin] = await db.select()
+      .from(admins)
+      .where(eq(admins.email, email));
+    return admin;
+  }
+
+  async updateAdminResetToken(id: number, token: string | null, expiry: Date | null): Promise<void> {
+    await db.update(admins)
+      .set({ resetToken: token, resetTokenExpiry: expiry })
+      .where(eq(admins.id, id));
+  }
+
+  async initializeAdmin(admin: InsertAdmin): Promise<void> {
+    const existingAdmin = await this.getAdminByUsername(admin.username);
+    if (!existingAdmin) {
+      await db.insert(admins).values(admin);
+    }
   }
 
   // Initialize sample products if none exist
