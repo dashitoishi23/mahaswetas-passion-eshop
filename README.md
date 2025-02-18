@@ -24,7 +24,15 @@ An e-commerce platform specializing in handmade traditional wear and eco-friendl
 
 - Node.js (v18 or higher)
 - PostgreSQL database
-- A `.env` file with your `DATABASE_URL` configured
+- A `.env` file with the following configuration:
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| DATABASE_URL | PostgreSQL database connection URL | Yes | - |
+| ADMIN_PASSWORD | Password for admin access (min. 8 characters) | Yes | - |
+| ADMIN_EMAIL | Email address for admin account | Yes | - |
+| JWT_SECRET | Secret key for JWT token generation | No | "your-jwt-secret-key" |
+| JWT_EXPIRY | JWT token expiration time | No | "48h" |
 
 ### First-time Setup
 
