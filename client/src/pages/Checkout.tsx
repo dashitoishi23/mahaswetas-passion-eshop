@@ -39,19 +39,47 @@ export default function Checkout() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof checkoutSchema>) => {
-      await apiRequest("POST", "/api/orders", {
+      const response = await apiRequest("POST", "/api/orders", {
         ...values,
         total: total(),
         items: items.map(item => `${item.product.name} (${item.quantity})`),
       });
+      
+      const options = {
+        key: response.razorpayKeyId,
+        amount: response.amount,
+        currency: "INR",
+        name: "Your Store",
+        description: "Purchase",
+        order_id: response.orderId,
+        handler: async (response: any) => {
+          await apiRequest("POST", "/api/orders/verify", {
+            orderId: response.razorpay_order_id,
+            paymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
+          });
+          clearCart();
+          toast({
+            title: "Payment successful!",
+            description: "Thank you for your purchase.",
+          });
+          setLocation("/");
+        },
+        prefill: {
+          name: values.customerName,
+          email: values.email,
+        },
+      };
+      
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
     },
-    onSuccess: () => {
-      clearCart();
+    onError: () => {
       toast({
-        title: "Order placed successfully!",
-        description: "Thank you for your purchase.",
+        title: "Error",
+        description: "Failed to process payment. Please try again.",
+        variant: "destructive",
       });
-      setLocation("/");
     },
   });
 

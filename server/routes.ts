@@ -55,12 +55,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const orderData = insertOrderSchema.parse(req.body);
       const order = await storage.createOrder(orderData);
-      res.status(201).json(order);
+      
+      const instance = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
+
+      const razorpayOrder = await instance.orders.create({
+        amount: Math.round(orderData.total * 100),
+        currency: "INR",
+        receipt: order.id.toString(),
+      });
+
+      res.status(201).json({
+        orderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid order data" });
       }
       throw error;
+    }
+  });
+
+app.post("/api/orders/verify", async (req, res) => {
+    const { orderId, paymentId, signature } = req.body;
+    const text = orderId + "|" + paymentId;
+    
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(text)
+      .digest("hex");
+      
+    if (generatedSignature === signature) {
+      res.json({ verified: true });
+    } else {
+      res.status(400).json({ verified: false });
     }
   });
 
