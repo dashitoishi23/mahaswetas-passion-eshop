@@ -1,4 +1,6 @@
 import { products, orders, type Product, type InsertProduct, type Order, type InsertOrder } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getProducts(): Promise<Product[]>;
@@ -7,78 +9,71 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
 }
 
-export class MemStorage implements IStorage {
-  private products: Map<number, Product>;
-  private orders: Map<number, Order>;
-  private currentProductId: number;
-  private currentOrderId: number;
-
-  constructor() {
-    this.products = new Map();
-    this.orders = new Map();
-    this.currentProductId = 1;
-    this.currentOrderId = 1;
-    this.initializeProducts();
-  }
-
-  private initializeProducts() {
-    const sampleProducts: InsertProduct[] = [
-      {
-        name: "Traditional Silk Dupatta",
-        description: "Hand-woven silk dupatta with intricate embroidery",
-        price: "49.99",
-        category: "Dupattas",
-        imageUrl: "https://images.unsplash.com/photo-1717585679395-bbe39b5fb6bc"
-      },
-      {
-        name: "Embroidered Georgette Dupatta",
-        description: "Light georgette dupatta with floral patterns",
-        price: "39.99",
-        category: "Dupattas",
-        imageUrl: "https://images.unsplash.com/photo-1597380281502-80858032f5bd"
-      },
-      {
-        name: "Designer Kurti",
-        description: "Modern cut kurti with traditional prints",
-        price: "79.99",
-        category: "Kurtis",
-        imageUrl: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960"
-      },
-      {
-        name: "Recycled Paper Necklace",
-        description: "Handcrafted necklace made from recycled paper",
-        price: "29.99",
-        category: "Jewelry",
-        imageUrl: "https://images.unsplash.com/photo-1737998874193-8f6da6cad870"
-      }
-    ];
-
-    sampleProducts.forEach(product => {
-      const id = this.currentProductId++;
-      this.products.set(id, { ...product, id });
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    return await db.select().from(products);
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(
-      product => product.category === category
-    );
+    return await db.select()
+      .from(products)
+      .where(eq(products.category, category));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select()
+      .from(products)
+      .where(eq(products.id, id));
+    return product;
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const id = this.currentOrderId++;
-    const order: Order = { ...insertOrder, id };
-    this.orders.set(id, order);
+    const [order] = await db.insert(orders)
+      .values(insertOrder)
+      .returning();
     return order;
+  }
+
+  // Initialize sample products if none exist
+  async initializeProducts() {
+    const existingProducts = await this.getProducts();
+    if (existingProducts.length === 0) {
+      const sampleProducts: InsertProduct[] = [
+        {
+          name: "Traditional Silk Dupatta",
+          description: "Hand-woven silk dupatta with intricate embroidery",
+          price: "49.99",
+          category: "Dupattas",
+          imageUrl: "https://images.unsplash.com/photo-1717585679395-bbe39b5fb6bc"
+        },
+        {
+          name: "Embroidered Georgette Dupatta",
+          description: "Light georgette dupatta with floral patterns",
+          price: "39.99",
+          category: "Dupattas",
+          imageUrl: "https://images.unsplash.com/photo-1597380281502-80858032f5bd"
+        },
+        {
+          name: "Designer Kurti",
+          description: "Modern cut kurti with traditional prints",
+          price: "79.99",
+          category: "Kurtis",
+          imageUrl: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960"
+        },
+        {
+          name: "Recycled Paper Necklace",
+          description: "Handcrafted necklace made from recycled paper",
+          price: "29.99",
+          category: "Jewelry",
+          imageUrl: "https://images.unsplash.com/photo-1737998874193-8f6da6cad870"
+        }
+      ];
+
+      await db.insert(products).values(sampleProducts);
+    }
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
+// Initialize sample products
+storage.initializeProducts().catch(console.error);
