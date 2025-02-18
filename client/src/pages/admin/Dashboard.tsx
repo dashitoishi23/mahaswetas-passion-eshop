@@ -43,8 +43,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useRequireAuth } from "@/lib/auth";
 
 export default function AdminDashboard() {
+  useRequireAuth();
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();

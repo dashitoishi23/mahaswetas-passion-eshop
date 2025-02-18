@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import {useEffect} from 'react';
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -24,6 +25,21 @@ const loginSchema = z.object({
 export default function AdminLogin() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // Add this effect to check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 > Date.now()) {
+          setLocation('/admin');
+        }
+      } catch (e) {
+        localStorage.removeItem('adminToken');
+      }
+    }
+  }, [setLocation]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),

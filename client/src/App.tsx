@@ -1,4 +1,4 @@
-import { Switch, Route, Link } from "wouter";
+import { Switch, Route, Link, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,6 +21,9 @@ function Navigation() {
           <Link href="/catalog" className="text-muted-foreground hover:text-foreground">
             Shop
           </Link>
+          <Link href="/admin/login" className="text-muted-foreground hover:text-foreground">
+            Admin
+          </Link>
         </nav>
         <CartOverlay />
       </div>
@@ -29,6 +32,9 @@ function Navigation() {
 }
 
 function Router() {
+  const [location] = useLocation();
+  const isAdminRoute = location.startsWith('/admin');
+
   return (
     <Switch>
       <Route path="/" component={Home} />
