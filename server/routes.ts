@@ -20,13 +20,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
-    
+
     const product = await storage.getProduct(id);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    
+
     res.json(product);
+  });
+
+  app.get("/api/orders", async (_req, res) => {
+    const orders = await storage.getOrders();
+    res.json(orders);
   });
 
   app.post("/api/orders", async (req, res) => {

@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import ProductCatalog from "@/pages/ProductCatalog";
 import Checkout from "@/pages/Checkout";
+import AdminDashboard from "@/pages/admin/Dashboard";
 import { CartOverlay } from "@/components/CartOverlay";
 
 function Navigation() {
@@ -18,6 +19,9 @@ function Navigation() {
           </Link>
           <Link href="/catalog" className="text-muted-foreground hover:text-foreground">
             Shop
+          </Link>
+          <Link href="/admin" className="text-muted-foreground hover:text-foreground">
+            Admin
           </Link>
         </nav>
         <CartOverlay />
@@ -32,6 +36,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/catalog" component={ProductCatalog} />
       <Route path="/checkout" component={Checkout} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

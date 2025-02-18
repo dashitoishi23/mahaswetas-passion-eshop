@@ -7,6 +7,7 @@ export interface IStorage {
   getProductsByCategory(category: string): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
+  getOrders(): Promise<Order[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -25,6 +26,10 @@ export class DatabaseStorage implements IStorage {
       .from(products)
       .where(eq(products.id, id));
     return product;
+  }
+
+  async getOrders(): Promise<Order[]> {
+    return await db.select().from(orders);
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
