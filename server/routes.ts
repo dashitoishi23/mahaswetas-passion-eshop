@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertOrderSchema } from "@shared/schema";
 import { z } from "zod";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const auth = await setupAuth(app);
+
   app.get("/api/products", async (_req, res) => {
     const products = await storage.getProducts();
     res.json(products);
@@ -29,7 +32,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(product);
   });
 
-  app.get("/api/orders", async (_req, res) => {
+  // Protected admin routes
+  app.get("/api/orders", auth.isAuthenticated, async (_req, res) => {
     const orders = await storage.getOrders();
     res.json(orders);
   });

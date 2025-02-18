@@ -10,20 +10,37 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocation } from "wouter";
+import { Loader2 } from "lucide-react";
 
 export default function AdminDashboard() {
-  const { data: products } = useQuery<Product[]>({
+  const [, setLocation] = useLocation();
+
+  const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
 
-  const { data: orders } = useQuery<Order[]>({
+  const { data: orders, isLoading: isLoadingOrders, error } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
   });
+
+  if (error?.message === "401: Unauthorized") {
+    setLocation("/admin/login");
+    return null;
+  }
+
+  if (isLoadingProducts || isLoadingOrders) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-border" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-8">Admin Dashboard</h1>
-      
+
       <Tabs defaultValue="products">
         <TabsList>
           <TabsTrigger value="products">Products</TabsTrigger>

@@ -1,12 +1,13 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { Admin } from "@shared/schema";
 import MemoryStore from "memorystore";
+import config from "./config";
 
 const MemoryStoreSession = MemoryStore(session);
 const scryptAsync = promisify(scrypt);
@@ -30,7 +31,7 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-export function setupAuth(app: Express) {
+export async function setupAuth(app: Express) {
   const sessionStore = new MemoryStoreSession({
     checkPeriod: 86400000 // prune expired entries every 24h
   });
@@ -75,16 +76,27 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Initialize admin user if not exists
-  storage.initializeAdmin({
+  // Initialize admin user
+  const hashedPassword = await hashPassword(config.ADMIN_PASSWORD);
+  await storage.initializeAdmin({
     username: "admin",
-    password: await hashPassword("p@ssw0rd"),
-    email: "hitoishi.das@gmail.com"
-  }).catch(console.error);
+    password: hashedPassword,
+    email: config.ADMIN_EMAIL
+  });
+
+  app.post("/api/admin/login", passport.authenticate("local"), (req, res) => {
+    res.json(req.user);
+  });
+
+  app.post("/api/admin/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.sendStatus(200);
+    });
+  });
 
   return {
-    hashPassword,
-    isAuthenticated: (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
+    isAuthenticated: (req: Request, res: Response, next: NextFunction) => {
       if (req.isAuthenticated()) {
         return next();
       }
