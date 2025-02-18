@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, LogOut } from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -93,6 +93,16 @@ export default function AdminDashboard() {
     },
   });
 
+  const { mutate: logout } = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/admin/logout");
+    },
+    onSuccess: () => {
+      localStorage.removeItem('adminToken');
+      setLocation('/admin/login');
+    },
+  });
+
   if (error?.message === "401: Unauthorized") {
     setLocation("/admin/login");
     return null;
@@ -109,7 +119,12 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <Button variant="ghost" size="icon" onClick={() => logout()}>
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
