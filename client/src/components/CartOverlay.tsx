@@ -45,7 +45,7 @@ export function CartOverlay() {
               <div className="flex-1">
                 <h4 className="font-medium">{item.product.name}</h4>
                 <p className="text-sm text-muted-foreground">
-                  ${item.product.price}
+                  ₹{item.product.price}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   <Button
@@ -82,7 +82,7 @@ export function CartOverlay() {
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-background">
           <div className="flex justify-between mb-4">
             <span className="font-medium">Total</span>
-            <span className="font-bold">${total().toFixed(2)}</span>
+            <span className="font-bold">₹{total().toFixed(2)}</span>
           </div>
           <Button
             className="w-full"

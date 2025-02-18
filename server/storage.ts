@@ -42,28 +42,28 @@ export class DatabaseStorage implements IStorage {
         {
           name: "Traditional Silk Dupatta",
           description: "Hand-woven silk dupatta with intricate embroidery",
-          price: "49.99",
+          price: "3999.00",
           category: "Dupattas",
           imageUrl: "https://images.unsplash.com/photo-1717585679395-bbe39b5fb6bc"
         },
         {
           name: "Embroidered Georgette Dupatta",
           description: "Light georgette dupatta with floral patterns",
-          price: "39.99",
+          price: "2999.00",
           category: "Dupattas",
           imageUrl: "https://images.unsplash.com/photo-1597380281502-80858032f5bd"
         },
         {
           name: "Designer Kurti",
           description: "Modern cut kurti with traditional prints",
-          price: "79.99",
+          price: "5999.00",
           category: "Kurtis",
           imageUrl: "https://images.unsplash.com/photo-1609921212029-bb5a28e60960"
         },
         {
           name: "Recycled Paper Necklace",
           description: "Handcrafted necklace made from recycled paper",
-          price: "29.99",
+          price: "1999.00",
           category: "Jewelry",
           imageUrl: "https://images.unsplash.com/photo-1737998874193-8f6da6cad870"
         }
