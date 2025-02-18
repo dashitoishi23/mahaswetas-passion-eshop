@@ -4,6 +4,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import jwt from "jsonwebtoken";
 import { storage } from "./storage";
 import { Admin } from "@shared/schema";
 import MemoryStore from "memorystore";
@@ -29,6 +30,22 @@ async function comparePasswords(supplied: string, stored: string) {
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, suppliedBuf);
+}
+
+function generateToken(admin: Admin) {
+  return jwt.sign(
+    { id: admin.id, username: admin.username },
+    config.JWT_SECRET,
+    { expiresIn: config.JWT_EXPIRY }
+  );
+}
+
+function verifyToken(token: string) {
+  try {
+    return jwt.verify(token, config.JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
 }
 
 export async function setupAuth(app: Express) {
@@ -85,7 +102,8 @@ export async function setupAuth(app: Express) {
   });
 
   app.post("/api/admin/login", passport.authenticate("local"), (req, res) => {
-    res.json(req.user);
+    const token = generateToken(req.user as Admin);
+    res.json({ token, user: req.user });
   });
 
   app.post("/api/admin/logout", (req, res, next) => {
@@ -95,12 +113,20 @@ export async function setupAuth(app: Express) {
     });
   });
 
-  return {
-    isAuthenticated: (req: Request, res: Response, next: NextFunction) => {
-      if (req.isAuthenticated()) {
-        return next();
-      }
-      res.status(401).json({ message: "Unauthorized" });
+  const jwtAuth = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: "No token provided" });
     }
+
+    const token = authHeader.split(' ')[1];
+    const payload = verifyToken(token);
+    if (!payload) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+
+    next();
   };
+
+  return { jwtAuth };
 }

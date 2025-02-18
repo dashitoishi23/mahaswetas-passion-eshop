@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema } from "@shared/schema";
+import { insertOrderSchema, insertProductSchema } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
 
@@ -33,9 +33,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes
-  app.get("/api/orders", auth.isAuthenticated, async (_req, res) => {
+  app.get("/api/orders", auth.jwtAuth, async (_req, res) => {
     const orders = await storage.getOrders();
     res.json(orders);
+  });
+
+  app.post("/api/products", auth.jwtAuth, async (req, res) => {
+    try {
+      const productData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(productData);
+      res.status(201).json(product);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid product data" });
+      }
+      throw error;
+    }
   });
 
   app.post("/api/orders", async (req, res) => {

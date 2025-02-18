@@ -6,6 +6,7 @@ export interface IStorage {
   getProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
   createOrder(order: InsertOrder): Promise<Order>;
   getOrders(): Promise<Order[]>;
   getAdmin(id: number): Promise<Admin | undefined>;
@@ -30,6 +31,13 @@ export class DatabaseStorage implements IStorage {
     const [product] = await db.select()
       .from(products)
       .where(eq(products.id, id));
+    return product;
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    const [product] = await db.insert(products)
+      .values(insertProduct)
+      .returning();
     return product;
   }
 

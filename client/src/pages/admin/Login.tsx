@@ -35,9 +35,16 @@ export default function AdminLogin() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof loginSchema>) => {
-      await apiRequest("POST", "/api/admin/login", values);
+      const res = await apiRequest("POST", "/api/admin/login", values);
+      return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Store the JWT token
+      localStorage.setItem('adminToken', data.token);
+      toast({
+        title: "Login successful",
+        description: "Welcome back, admin!",
+      });
       setLocation("/admin");
     },
     onError: (error: Error) => {
