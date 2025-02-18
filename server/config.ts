@@ -11,6 +11,10 @@ const configSchema = z.object({
   // JWT configuration
   JWT_SECRET: z.string().default("your-jwt-secret-key"),
   JWT_EXPIRY: z.string().default("48h"),
+
+  // Razorpay configuration
+  RAZORPAY_KEY_ID: z.string(),
+  RAZORPAY_KEY_SECRET: z.string(),
 });
 
 // Validate environment variables

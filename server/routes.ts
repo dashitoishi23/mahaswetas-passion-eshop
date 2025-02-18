@@ -57,8 +57,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.createOrder(orderData);
       
       const instance = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
+        key_id: config.RAZORPAY_KEY_ID,
+        key_secret: config.RAZORPAY_KEY_SECRET,
       });
 
       const razorpayOrder = await instance.orders.create({

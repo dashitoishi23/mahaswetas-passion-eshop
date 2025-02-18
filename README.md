@@ -33,6 +33,8 @@ An e-commerce platform specializing in handmade traditional wear and eco-friendl
 | ADMIN_EMAIL | Email address for admin account | Yes | - |
 | JWT_SECRET | Secret key for JWT token generation | No | "your-jwt-secret-key" |
 | JWT_EXPIRY | JWT token expiration time | No | "48h" |
+| RAZORPAY_KEY_ID | Razorpay API Key ID | Yes | - |
+| RAZORPAY_KEY_SECRET | Razorpay API Key Secret | Yes | - |
 
 ### First-time Setup
 
