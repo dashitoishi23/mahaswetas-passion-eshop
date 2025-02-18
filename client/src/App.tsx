@@ -21,9 +21,6 @@ function Navigation() {
           <Link href="/catalog" className="text-muted-foreground hover:text-foreground">
             Shop
           </Link>
-          <Link href="/admin/login" className="text-muted-foreground hover:text-foreground">
-            Admin
-          </Link>
         </nav>
         <CartOverlay />
       </div>
