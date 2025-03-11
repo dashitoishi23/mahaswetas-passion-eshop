@@ -1,6 +1,17 @@
-import express, { type Request, Response, NextFunction } from "express";
+// Load environment variables from .env file in development
+if (process.env.NODE_ENV !== 'production') {
+  (async () => {
+    const dotenv = await import('dotenv');
+    dotenv.config();
+    console.log('Environment variables loaded from .env file');
+  })();
+}
+
+import express, { type NextFunction, Request, Response } from "express";
+import { setupVite } from "./vite";
+import { serveStatic } from "./static";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "console";
 
 const app = express();
 app.use(express.json());

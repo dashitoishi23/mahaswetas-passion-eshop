@@ -44,12 +44,25 @@ An e-commerce platform specializing in handmade traditional wear and eco-friendl
 npm install
 ```
 
-2. Set up the database:
+2. Create a `.env` file in the root directory with the following variables:
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+ADMIN_PASSWORD=admin123456
+ADMIN_EMAIL=admin@example.com
+JWT_SECRET=your-jwt-secret-key
+JWT_EXPIRY=48h
+```
+Replace the placeholder values with your actual credentials.
+
+3. Set up the database:
 ```bash
 npm run db:push
 ```
 
 This will create the necessary database tables and initialize them with sample products.
+</old_str>
 
 ### Development
 
