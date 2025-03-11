@@ -11,5 +11,15 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Build connection options with password if provided
+const connectionOptions: any = { 
+  connectionString: process.env.DATABASE_URL 
+};
+
+// Add password if provided
+if (process.env.DATABASE_PASSWORD) {
+  connectionOptions.password = process.env.DATABASE_PASSWORD;
+}
+
+export const pool = new Pool(connectionOptions);
 export const db = drizzle({ client: pool, schema });

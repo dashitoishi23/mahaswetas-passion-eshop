@@ -3,6 +3,7 @@ import { z } from "zod";
 const configSchema = z.object({
   // Database configuration
   DATABASE_URL: z.string(),
+  DATABASE_PASSWORD: z.string().optional(),
 
   // Admin configuration
   ADMIN_PASSWORD: z.string().min(8),
@@ -20,6 +21,7 @@ const configSchema = z.object({
 // Validate environment variables
 const config = configSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   JWT_SECRET: process.env.JWT_SECRET,

@@ -29,6 +29,7 @@ An e-commerce platform specializing in handmade traditional wear and eco-friendl
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | DATABASE_URL | PostgreSQL database connection URL | Yes | - |
+| DATABASE_PASSWORD | PostgreSQL database password (if not included in URL) | No | - |
 | ADMIN_PASSWORD | Password for admin access (min. 8 characters) | Yes | - |
 | ADMIN_EMAIL | Email address for admin account | Yes | - |
 | JWT_SECRET | Secret key for JWT token generation | No | "your-jwt-secret-key" |
