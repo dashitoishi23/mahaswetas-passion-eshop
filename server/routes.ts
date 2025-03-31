@@ -4,6 +4,18 @@ import { storage } from "./storage";
 import { insertOrderSchema, insertProductSchema } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
+import Razorpay from 'razorpay';
+import config from "./config";
+
+function generateRandomNumericString() {
+  let result = '';
+  const characters = '0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const auth = await setupAuth(app);
@@ -54,18 +66,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders", async (req, res) => {
     try {
       const orderData = insertOrderSchema.parse(req.body);
-      const order = await storage.createOrder(orderData);
       
+      // Create an order in database
       const instance = new Razorpay({
         key_id: config.RAZORPAY_KEY_ID,
         key_secret: config.RAZORPAY_KEY_SECRET,
       });
 
       const razorpayOrder = await instance.orders.create({
-        amount: Math.round(orderData.total * 100),
+        amount: Math.round(Number.parseFloat(orderData.total) * 100),
         currency: "INR",
-        receipt: order.id.toString(),
+        receipt: generateRandomNumericString(),
       });
+
+      console.log({ razorpayOrder })
 
       res.status(201).json({
         orderId: razorpayOrder.id,
@@ -73,6 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         razorpayKeyId: process.env.RAZORPAY_KEY_ID,
       });
     } catch (error) {
+      console.log(error)
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid order data" });
       }
@@ -81,15 +96,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 app.post("/api/orders/verify", async (req, res) => {
-    const { orderId, paymentId, signature } = req.body;
+  console.log("Here");
+    const { orderId, paymentId, signature, orderDataBody } = req.body;
     const text = orderId + "|" + paymentId;
-    
+
+    console.log({ orderId, paymentId, signature, orderDataBody });
+
+    const orderData = insertOrderSchema.parse(orderDataBody);
+
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(text)
       .digest("hex");
       
     if (generatedSignature === signature) {
+      await storage.createOrder(orderData);
       res.json({ verified: true });
     } else {
       res.status(400).json({ verified: false });

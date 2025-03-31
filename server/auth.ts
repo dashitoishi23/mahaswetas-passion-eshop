@@ -55,7 +55,7 @@ export async function setupAuth(app: Express) {
 
   app.use(
     session({
-      secret: "your-secret-key",
+      secret: process.env.JWT_SECRET as string,
       resave: false,
       saveUninitialized: false,
       store: sessionStore,
@@ -96,7 +96,7 @@ export async function setupAuth(app: Express) {
   // Initialize admin user
   const hashedPassword = await hashPassword(config.ADMIN_PASSWORD);
   await storage.initializeAdmin({
-    username: "admin",
+    username: process.env.ADMIN_USERNAME as string,
     password: hashedPassword,
     email: config.ADMIN_EMAIL
   });

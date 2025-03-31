@@ -16,6 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useEffect } from "react";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,6 +28,13 @@ export default function Checkout() {
   const { items, total, clearCart } = useCart();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+}, []);
 
   const form = useForm<z.infer<typeof checkoutSchema>>({
     resolver: zodResolver(checkoutSchema),
@@ -41,23 +49,34 @@ export default function Checkout() {
     mutationFn: async (values: z.infer<typeof checkoutSchema>) => {
       const response = await apiRequest("POST", "/api/orders", {
         ...values,
-        total: total(),
+        total: total().toFixed(2),
         items: items.map(item => `${item.product.name} (${item.quantity})`),
       });
+
+      const responseBody = await response.json();
+
+      let razorpayResponse = {};
       
       const options = {
-        key: response.razorpayKeyId,
-        amount: response.amount,
+        key: responseBody.razorpayKeyId,
+        amount: responseBody.amount,
         currency: "INR",
         name: "Your Store",
         description: "Purchase",
-        order_id: response.orderId,
+        order_id: responseBody.orderId,
         handler: async (response: any) => {
           await apiRequest("POST", "/api/orders/verify", {
             orderId: response.razorpay_order_id,
             paymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature,
+            orderData: {
+              ...values,
+              total: total().toFixed(2),
+              items: items.map(item => `${item.product.name} (${item.quantity})`),
+            }
           });
+          razorpayResponse = response;
+          console.log({ response })
           clearCart();
           toast({
             title: "Payment successful!",
@@ -73,12 +92,8 @@ export default function Checkout() {
       
       const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to process payment. Please try again.",
-        variant: "destructive",
+      razorpay.on('payment.failed', function (response: any){
+        console.log(response);
       });
     },
   });
