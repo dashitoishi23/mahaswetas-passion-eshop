@@ -6,6 +6,7 @@ const configSchema = z.object({
   DATABASE_PASSWORD: z.string().optional(),
 
   // Admin configuration
+  ADMIN_USERNAME: z.string(),
   ADMIN_PASSWORD: z.string().min(8),
   ADMIN_EMAIL: z.string().email(),
 
