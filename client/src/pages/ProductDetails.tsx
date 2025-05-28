@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Product } from "@shared/schema";
 import { useCart } from "@/lib/cart";
 import { useToast } from "@/hooks/use-toast";
+import { constants } from "@/lib/utils";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -33,6 +34,8 @@ export default function ProductDetails() {
       });
     }
   };
+
+    console.log({ product })
 
   if (isLoading) {
     return (
@@ -120,30 +123,10 @@ export default function ProductDetails() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Features</h3>
             <ul className="space-y-2 text-muted-foreground">
-              {product.category === "Dupattas" && (
-                <>
-                  <li>• Handwoven with traditional techniques</li>
-                  <li>• Premium quality fabric</li>
-                  <li>• Elegant and versatile design</li>
-                  <li>• Perfect for both casual and formal occasions</li>
-                </>
-              )}
-              {product.category === "Kurtis" && (
-                <>
-                  <li>• Comfortable and breathable fabric</li>
-                  <li>• Traditional embroidery and patterns</li>
-                  <li>• Perfect fit for all body types</li>
-                  <li>• Easy care and maintenance</li>
-                </>
-              )}
-              {product.category === "Jewelry" && (
-                <>
-                  <li>• Made from recycled and eco-friendly materials</li>
-                  <li>• Unique handcrafted design</li>
-                  <li>• Lightweight and comfortable to wear</li>
-                  <li>• Sustainable and environmentally conscious</li>
-                </>
-              )}
+              {constants.defaultCategoryFeatures[product.category as keyof typeof constants.defaultCategoryFeatures]
+              .map((feature: string, index: number) => (
+                <li key={index}>• {feature}</li>
+              ))}
             </ul>
           </div>
 
