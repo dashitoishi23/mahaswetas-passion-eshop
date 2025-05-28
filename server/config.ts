@@ -23,6 +23,7 @@ const configSchema = z.object({
 const config = configSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
+  ADMIN_USERNAME: process.env.ADMIN_USERNAME,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   JWT_SECRET: process.env.JWT_SECRET,
