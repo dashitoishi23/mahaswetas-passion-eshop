@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS eshop.orders (
     email TEXT NOT NULL,
     address TEXT NOT NULL,
     total DECIMAL NOT NULL,
-    items TEXT[] NOT NULL
+    items TEXT[] NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS eshop.admins (

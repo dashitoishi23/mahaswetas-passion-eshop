@@ -46,6 +46,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    console.log("order", insertOrder);
     const [order] = await db.insert(orders)
       .values(insertOrder)
       .returning();
@@ -82,7 +83,7 @@ export class DatabaseStorage implements IStorage {
   async initializeAdmin(admin: InsertAdmin): Promise<void> {
     const existingAdmin = await this.getAdminByUsername(admin.username);
     if (!existingAdmin) {
-      await db.insert(admins).values(admin);
+      throw new Error(`Admin user ${admin.username} not found`);
     }
   }
 
