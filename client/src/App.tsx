@@ -8,6 +8,7 @@ import ProductCatalog from "@/pages/ProductCatalog";
 import Checkout from "@/pages/Checkout";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminLogin from "@/pages/admin/Login";
+import ProductDetails from "@/pages/ProductDetails";
 import { CartOverlay } from "@/components/CartOverlay";
 
 function Navigation() {
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/catalog" component={ProductCatalog} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/product/:id" component={ProductDetails} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
