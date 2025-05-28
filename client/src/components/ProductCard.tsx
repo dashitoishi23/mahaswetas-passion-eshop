@@ -1,14 +1,14 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@shared/schema";
-import { useCart } from "@/lib/cart";
+import { Link } from "wouter";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addItem } = useCart();
+
 
   return (
     <Card className="overflow-hidden">
