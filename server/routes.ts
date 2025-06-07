@@ -6,6 +6,8 @@ import { z } from "zod";
 import { setupAuth } from "./auth";
 import Razorpay from 'razorpay';
 import config from "./config";
+import { constants } from "@/lib/utils";
+import crypto from "crypto";
 
 function generateRandomNumericString() {
   let result = '';
@@ -79,7 +81,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         receipt: generateRandomNumericString(),
       });
 
-      console.log({ razorpayOrder })
+      // await storage.createOrder({
+      //   customerName: orderData.customerName,
+      //   email: orderData.email,
+      //   address: orderData.address,
+      //   total: orderData.total,
+      //   items: orderData.items,
+      //   status: constants.orderStatuses.pending,
+      // });
 
       res.status(201).json({
         orderId: razorpayOrder.id,
@@ -96,16 +105,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 app.post("/api/orders/verify", async (req, res) => {
-  console.log("Here");
-    const { orderId, paymentId, signature, orderDataBody } = req.body;
+    const { orderId, paymentId, signature, orderMetaData } = req.body;
     const text = orderId + "|" + paymentId;
 
-    console.log({ orderId, paymentId, signature, orderDataBody });
+    console.log({ orderId, paymentId, signature, orderMetaData });
 
-    const orderData = insertOrderSchema.parse(orderDataBody);
+    const orderData = insertOrderSchema.parse({
+      ...orderMetaData,
+      paymentId: paymentId,
+      status: constants.orderStatuses.pending,
+    });
 
     const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
       .update(text)
       .digest("hex");
       

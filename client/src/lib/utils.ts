@@ -26,5 +26,11 @@ export const constants = {
       "Lightweight and comfortable to wear",
       "Sustainable and environmentally conscious",
     ],
-  }
+  },
+  orderStatuses: {
+    pending: "Pending",
+    processing: "Processing",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  },
 }

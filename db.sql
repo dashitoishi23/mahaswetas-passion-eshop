@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS eshop.orders (
     address TEXT NOT NULL,
     total DECIMAL NOT NULL,
     items TEXT[] NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status TEXT NOT NULL DEFAULT 'Pending',
+    payment_id TEXT NOT NULL DEFAULT 'UNPAID'
 );
 
 CREATE TABLE IF NOT EXISTS eshop.admins (

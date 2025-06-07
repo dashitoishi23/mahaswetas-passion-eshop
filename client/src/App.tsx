@@ -10,6 +10,7 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminLogin from "@/pages/admin/Login";
 import ProductDetails from "@/pages/ProductDetails";
 import { CartOverlay } from "@/components/CartOverlay";
+import OrderSuccess from "./pages/OrderSuccess";
 
 function Navigation() {
   return (
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/product/:id" component={ProductDetails} />
+      <Route path="/orderSuccess" component={OrderSuccess} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>

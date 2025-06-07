@@ -65,24 +65,24 @@ export default function Checkout() {
         description: "Purchase",
         order_id: responseBody.orderId,
         handler: async (response: any) => {
+          console.log({ values })
           await apiRequest("POST", "/api/orders/verify", {
             orderId: response.razorpay_order_id,
             paymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature,
-            orderData: {
+            orderMetaData: {
               ...values,
               total: total().toFixed(2),
               items: items.map(item => `${item.product.name} (${item.quantity})`),
             }
           });
           razorpayResponse = response;
-          console.log({ response })
           clearCart();
           toast({
             title: "Payment successful!",
             description: "Thank you for your purchase.",
           });
-          setLocation("/");
+          setLocation("/orderSuccess");
         },
         prefill: {
           name: values.customerName,

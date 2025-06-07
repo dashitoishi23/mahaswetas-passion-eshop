@@ -1,3 +1,4 @@
+import { date } from "drizzle-orm/mysql-core";
 import { pgTable, text, serial, integer, numeric, timestamp, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -18,6 +19,9 @@ export const orders = pgTable("orders", {
   address: text("address").notNull(),
   total: decimal("total", {precision: 10, scale: 2}).notNull(),
   items: text("items").array().notNull(),
+  date: timestamp("date").notNull().defaultNow(),
+  status: text("status").default("Pending").notNull(),
+  paymentId: text("payment_id").default("UNPAID").notNull(),
 });
 
 export const admins = pgTable("admins", {
@@ -42,7 +46,10 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   email: true,
   address: true,
   total: true,
-  items: true
+  items: true,
+  date: true,
+  status: true,
+  paymentId: true,
 });
 
 export const insertAdminSchema = createInsertSchema(admins).pick({
