@@ -12,7 +12,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className="overflow-hidden">
       <div className="relative aspect-square">
         <img
-          src={product.imageUrl}
+          src={product.imageUrl[0]}
           alt={product.name}
           className="object-cover w-full h-full"
         />

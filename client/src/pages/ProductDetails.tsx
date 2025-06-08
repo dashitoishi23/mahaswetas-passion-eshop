@@ -93,12 +93,35 @@ export default function ProductDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-lg border">
+          <div className="relative aspect-square overflow-hidden rounded-lg border"
+          id="main-image">
             <img
-              src={product.imageUrl}
+              src={product.imageUrl[0]}
               alt={product.name}
               className="object-cover w-full h-full"
             />
+          </div>
+          {/* Thumbnail Images */}
+          <div className="grid grid-cols-3 gap-2">
+            {
+              product.imageUrl.map((imageUrl, index) => (
+                <div key={index} className="aspect-square overflow-hidden rounded-md border cursor-pointer hover:opacity-75 transition">
+                  <img
+                    src={imageUrl}
+                    alt={`${product.name} view ${index + 1}`}
+                    className="object-cover w-full h-full"
+                    onClick={() => {
+                      const mainImage = document.getElementById(
+                        "main-image"
+                      ) as HTMLImageElement;
+                      if (mainImage) {
+                        mainImage.src = imageUrl;
+                      }
+                    }}
+                  />
+                </div>
+              ))
+            }
           </div>
         </div>
 
@@ -135,7 +158,7 @@ export default function ProductDetails() {
             <h3 className="text-lg font-semibold mb-3">Care Instructions</h3>
             <div className="bg-muted/50 p-4 rounded-lg">
               <ul className="space-y-1 text-sm text-muted-foreground">
-                {product.category === "Jewelry" ? (
+                {product.category === "Jewellery" ? (
                   <>
                     <li>• Store in a dry place away from moisture</li>
                     <li>• Clean gently with a soft cloth</li>

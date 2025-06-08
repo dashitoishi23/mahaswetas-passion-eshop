@@ -9,7 +9,7 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   price: numeric("price").notNull(),
   category: text("category").notNull(),
-  imageUrl: text("image_url").notNull(),
+  imageUrl: text("image_url").array().notNull(),
 });
 
 export const orders = pgTable("orders", {
