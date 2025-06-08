@@ -38,7 +38,7 @@ export function CartOverlay() {
               className="flex gap-4 py-4 border-b"
             >
               <img
-                src={item.product.imageUrl}
+                src={item.product.imageUrl[0]}
                 alt={item.product.name}
                 className="w-20 h-20 object-cover rounded"
               />

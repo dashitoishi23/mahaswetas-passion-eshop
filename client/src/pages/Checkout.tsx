@@ -17,11 +17,26 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
+import { addressConcat } from "@/lib/addressConcat";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { states } from "@/lib/utils";
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  address: z.string().min(10, "Please enter your full address"),
+  addressLine1: z.string().min(10, "Please enter your full address"),
+  addressLine2: z.string().optional(),
+  addressLine3: z.string().optional(),
+  city: z.string().min(2, "City must be at least 2 characters"),
+  state: z.string().min(2, "State must be at least 2 characters"),
+  pinCode: z.string().min(5, "Pin code must be at least 5 characters"),
+  phoneNumber: z.string().min(7, "Phone number must be at least 7 characters"),
 });
 
 export default function Checkout() {
@@ -41,16 +56,33 @@ export default function Checkout() {
     defaultValues: {
       customerName: "",
       email: "",
-      address: "",
+      addressLine1: "",
+      addressLine2: "",
+      addressLine3: "",
+      city: "",
+      state: "",
+      pinCode: "",
+      phoneNumber: "",
     },
   });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof checkoutSchema>) => {
+      const address = addressConcat(
+        values.addressLine1,
+        values.addressLine2,
+        values.addressLine3,
+        values.city,
+        values.state,
+        values.pinCode
+      );
       const response = await apiRequest("POST", "/api/orders", {
         ...values,
+        address,
+        phoneNumber: values.phoneNumber,
         total: total().toFixed(2),
         items: items.map(item => `${item.product.name} (${item.quantity})`),
+
       });
 
       const responseBody = await response.json();
@@ -72,6 +104,8 @@ export default function Checkout() {
             signature: response.razorpay_signature,
             orderMetaData: {
               ...values,
+              address,
+              phoneNumber: values.phoneNumber,
               total: total().toFixed(2),
               items: items.map(item => `${item.product.name} (${item.quantity})`),
             }
@@ -134,6 +168,7 @@ export default function Checkout() {
           </div>
         </div>
 
+        <em>We deliver only to India</em>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((values) => mutate(values))}
@@ -167,10 +202,99 @@ export default function Checkout() {
             />
             <FormField
               control={form.control}
-              name="address"
+              name="addressLine1"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Shipping Address</FormLabel>
+                  <FormLabel>Address Line 1</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="addressLine2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address Line 2</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="addressLine3"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Address Line 3</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="state"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>State</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a state" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {states.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pinCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Pin Code</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

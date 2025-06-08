@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       description: "",
       price: "0",
       category: "Dupattas",
-      imageUrl: "",
+      imageUrl: [""],
     },
   });
 

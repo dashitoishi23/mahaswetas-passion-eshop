@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS eshop.orders (
     customer_name TEXT NOT NULL,
     email TEXT NOT NULL,
     address TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
     total DECIMAL NOT NULL,
     items TEXT[] NOT NULL,
     date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
