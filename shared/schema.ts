@@ -65,4 +65,4 @@ export type Order = typeof orders.$inferSelect;
 export type InsertAdmin = z.infer<typeof insertAdminSchema>;
 export type Admin = typeof admins.$inferSelect;
 
-export const CATEGORIES = ["Dupattas", "Kurtis", "Jewelry"] as const;
+export const CATEGORIES = ["Dupattas", "Kurtis", "Jewellery"] as const;
