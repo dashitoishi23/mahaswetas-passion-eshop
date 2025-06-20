@@ -17,6 +17,10 @@ const configSchema = z.object({
   // Razorpay configuration
   RAZORPAY_KEY_ID: z.string(),
   RAZORPAY_KEY_SECRET: z.string(),
+
+  AWS_CLOUD_FRONT_URL: z.string(),
+
+  SENDGRID_API_KEY: z.string(),
 });
 
 // Validate environment variables
@@ -30,6 +34,8 @@ const config = configSchema.parse({
   JWT_EXPIRY: process.env.JWT_EXPIRY,
   RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
   RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+  AWS_CLOUD_FRONT_URL: process.env.AWS_CLOUD_FRONT_URL,
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
 });
 
 export default config;

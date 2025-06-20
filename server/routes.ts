@@ -8,6 +8,8 @@ import Razorpay from 'razorpay';
 import config from "./config";
 import { constants } from "@/lib/utils";
 import crypto from "crypto";
+import { purchaseEmailTemplate } from "./utils/emailComposer";
+import { sendEmail } from "./utils/sendgrid";
 
 function generateRandomNumericString() {
   let result = '';
@@ -81,15 +83,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         receipt: generateRandomNumericString(),
       });
 
-      // await storage.createOrder({
-      //   customerName: orderData.customerName,
-      //   email: orderData.email,
-      //   address: orderData.address,
-      //   total: orderData.total,
-      //   items: orderData.items,
-      //   status: constants.orderStatuses.pending,
-      // });
-
       res.status(201).json({
         orderId: razorpayOrder.id,
         amount: razorpayOrder.amount,
@@ -123,6 +116,10 @@ app.post("/api/orders/verify", async (req, res) => {
       
     if (generatedSignature === signature) {
       await storage.createOrder(orderData);
+      // Send email to customer
+      const emailHtml = purchaseEmailTemplate(orderId,
+        orderMetaData.items, orderMetaData.total, orderMetaData.customerName);
+      await sendEmail(orderMetaData.email, "Order Confirmation", emailHtml);z
       res.json({ verified: true });
     } else {
       res.status(400).json({ verified: false });
