@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useRequireAuth } from "@/lib/auth";
+import { OrderStatusSelect } from "./OrderStatusSelect";
 
 export default function AdminDashboard() {
   useRequireAuth();
@@ -68,6 +69,18 @@ export default function AdminDashboard() {
 
   const { data: orders, isLoading: isLoadingOrders, error } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+    queryFn: async () => {
+      const token = localStorage.getItem('adminToken');
+      if (!token) throw new Error('Not authenticated');
+      
+      const response = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
+    }
   });
 
   const { mutate: createProduct, isPending } = useMutation({
@@ -272,10 +285,13 @@ export default function AdminDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Customer</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
                     <TableHead>Items</TableHead>
+                    <TableHead>Address</TableHead>
                     <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -283,8 +299,13 @@ export default function AdminDashboard() {
                     <TableRow key={order.id}>
                       <TableCell>{order.customerName}</TableCell>
                       <TableCell>{order.email}</TableCell>
+                      <TableCell>{order.phoneNumber}</TableCell>
                       <TableCell>{order.items.join(", ")}</TableCell>
+                      <TableCell>{order.address}</TableCell>
                       <TableCell>₹{order.total}</TableCell>
+                      <TableCell>
+                        <OrderStatusSelect order={order} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

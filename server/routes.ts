@@ -54,6 +54,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(orders);
   });
 
+  app.patch("/api/orders/:id", auth.jwtAuth, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+
+    const order = await storage.getOrder(id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    const orderData = {
+      ...order,
+      status: req.body.status,
+    }
+
+    await storage.updateOrder(orderData);
+    res.json(orderData);
+  });
+
   app.post("/api/products", auth.jwtAuth, async (req, res) => {
     try {
       const productData = insertProductSchema.parse(req.body);

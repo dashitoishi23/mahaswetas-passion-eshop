@@ -16,9 +16,11 @@ export async function apiRequest(
     ...(data ? { "Content-Type": "application/json" } : {}),
   };
 
+
   // Add JWT token for admin routes
-  if (url.startsWith('/api/admin') || url === '/api/orders') {
+  if (url.startsWith('/api/admin') || url.startsWith('/api/orders')) {
     const token = localStorage.getItem('adminToken');
+    console.log({ token })
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -31,11 +33,11 @@ export async function apiRequest(
     credentials: 'include',
   });
 
-  if (res.status === 401 && url !== '/api/admin/login') {
-    localStorage.removeItem('adminToken');
-    window.location.href = '/admin/login';
-    throw new Error('Session expired');
-  }
+  // if (res.status === 401 && url !== '/api/admin/login') {
+  //   localStorage.removeItem('adminToken');
+  //   window.location.href = '/admin/login';
+  //   throw new Error('Session expired');
+  // }
 
   await throwIfResNotOk(res);
   return res;
