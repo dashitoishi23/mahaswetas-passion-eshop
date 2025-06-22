@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { CategoryData } from "server/routes";
 import { useLocation } from "wouter";
 
 export default function Home() {
   const [, setLocation] = useLocation();
+
+  const {data: categories} = useQuery<CategoryData[]>({
+    queryKey: ["/api/categories"],
+  });
 
   return (
     <div className="min-h-screen">
@@ -40,6 +46,24 @@ export default function Home() {
           Our Categories
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {categories?.map((category, idx) => (
+            <div
+              key={idx}
+              className="group cursor-pointer"
+              onClick={() => setLocation(`/catalog?category=${category.name}`)}
+            >
+              <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
+                <img
+                  src={category.imageUrl}
+                  alt={category.name}
+                  className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
+            </div>
+          ))}
+        </div>
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
               title: "Dupattas",
@@ -52,7 +76,7 @@ export default function Home() {
               description: "Designer kurtis with modern cuts"
             },
             {
-              title: "Jewelry",
+              title: "Jewellery",
               image: "https://images.unsplash.com/photo-1737998874193-8f6da6cad870",
               description: "Sustainable recycled jewelry"
             }
@@ -73,7 +97,7 @@ export default function Home() {
               <p className="text-muted-foreground">{category.description}</p>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );

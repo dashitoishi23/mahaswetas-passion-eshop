@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertOrderSchema, insertProductSchema } from "@shared/schema";
@@ -10,6 +10,17 @@ import { constants } from "@/lib/utils";
 import crypto from "crypto";
 import { purchaseEmailTemplate } from "./utils/emailComposer";
 import { sendEmail } from "./utils/sendgrid";
+import { deleteFileFromS3, uploadFileToS3 } from "./utils/aws";
+import multer from "multer";
+import { generateSignedUrl } from "./utils/signedURLGenerator";
+
+export interface CategoryData {
+  name: string;
+  imageUrl: string;
+}
+
+const multerStorage = multer.memoryStorage();
+const upload = multer({ storage: multerStorage });
 
 function generateRandomNumericString() {
   let result = '';
@@ -24,13 +35,46 @@ function generateRandomNumericString() {
 export async function registerRoutes(app: Express): Promise<Server> {
   const auth = await setupAuth(app);
 
+  app.get("/api/categories/", async (req, res) => {
+    const categories = await storage.getCategories();
+    const categoryData = [];
+    for (const category of categories) {
+      const product = (await storage.getProductsByCategory(category.name))[0];
+      if(product) {
+        categoryData.push({
+          name: category.name,
+          imageUrl: (await generateSignedUrl(product.imageUrl))[0], // Assuming the first image is the category image
+        });
+      }
+    }
+    console.log(categoryData);
+    res.json(categoryData);
+  })
+
+  app.get("/api/categories/all", async (req, res) => {
+    const categories = await storage.getCategories();
+    res.json(categories)
+  });
+
   app.get("/api/products", async (_req, res) => {
-    const products = await storage.getProducts();
+    let products = await storage.getProducts();
+    products = await Promise.all(
+      products.map(async (product) => {
+        product.imageUrl = await generateSignedUrl(product.imageUrl);
+        return product;
+    })
+  );
     res.json(products);
   });
 
   app.get("/api/products/category/:category", async (req, res) => {
-    const products = await storage.getProductsByCategory(req.params.category);
+    let products = await storage.getProductsByCategory(req.params.category);
+    products = await Promise.all(
+      products.map(async (product) => {
+        product.imageUrl = await generateSignedUrl(product.imageUrl);
+        return product;
+    })
+  );
     res.json(products);
   });
 
@@ -40,10 +84,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: "Invalid product ID" });
     }
 
-    const product = await storage.getProduct(id);
+    let product = await storage.getProduct(id);
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    product.imageUrl = await generateSignedUrl(product.imageUrl);
 
     res.json(product);
   });
@@ -74,17 +121,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(orderData);
   });
 
-  app.post("/api/products", auth.jwtAuth, async (req, res) => {
+  app.post("/api/products", auth.jwtAuth, upload.array("imageFiles", 4), async (req, res) => {
+    const files = req.files;
     try {
-      const productData = insertProductSchema.parse(req.body);
+      const productExists = await storage.productExists(req.body.name, req.body.category);
+      if (productExists) {
+        return res.status(400).json({ message: "Product already exists" });
+      }
+      const awsUrls = await Promise.all((files as Express.Multer.File[]).map((file, idx) => uploadFileToS3(file, `${req.body.category}/${req.body.name}-${idx}`))
+      )
+      const newProductData = {
+        ...req.body,
+        imageUrl: awsUrls,
+      }
+      //deleting imageFiles to prevent unnecessary data being passed around
+      delete newProductData.imageFiles;
+      const productData = insertProductSchema.parse(newProductData);
       const product = await storage.createProduct(productData);
       res.status(201).json(product);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid product data" });
       }
+      //delete uploaded files from S3 if there was an error
+      if (files) {
+        await Promise.all((files as Express.Multer.File[]).map((_, idx) => {
+          return deleteFileFromS3(`${req.body.category}/${req.body.name}-${idx}`);
+        }));
+      }
       throw error;
     }
+  });
+
+  app.delete("/api/products/:id", auth.jwtAuth, async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const product = await storage.getProduct(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    await storage.deleteProduct(id);
+    res.json({ message: "Product deleted successfully" });
+  });
+
+  app.patch("/api/products/:id/restore", auth.jwtAuth, async (req, res, next) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const product = await storage.getProduct(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    await storage.restoreProduct(id);
+    res.json(id);
   });
 
   app.post("/api/orders", async (req, res) => {

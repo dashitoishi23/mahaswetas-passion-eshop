@@ -1,8 +1,9 @@
-import { products, orders, admins, type Product, type InsertProduct, type Order, type InsertOrder, type Admin, type InsertAdmin } from "@shared/schema";
+import { products, orders, admins, type Product, type InsertProduct, type Order, type InsertOrder, type Admin, type InsertAdmin, Category, categories } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
+  getCategories(): Promise<Category[]>;
   getProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
@@ -17,6 +18,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  async getCategories(): Promise<Category[]> {
+    return await db.select()
+      .from(categories);
+  }
+
   async getProducts(): Promise<Product[]> {
     return await db.select().from(products);
   }
@@ -24,7 +30,8 @@ export class DatabaseStorage implements IStorage {
   async getProductsByCategory(category: string): Promise<Product[]> {
     return await db.select()
       .from(products)
-      .where(eq(products.category, category));
+      .where(and(eq(products.category, category), 
+      eq(products.isDeleted, false)));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -39,6 +46,30 @@ export class DatabaseStorage implements IStorage {
       .values(insertProduct)
       .returning();
     return product;
+  }
+
+  async productExists(name: string, category: string): Promise<boolean> {
+    const [product] = await db.select()
+      .from(products)
+      .where(and(eq(products.name, name), eq(products.category, category), eq(products.isDeleted, false)));
+    return !!product;
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    await db.update(products)
+    .set({
+      isDeleted: true,
+    })
+    .where(eq(products.id, id));
+  }
+
+  async restoreProduct(id: number): Promise<void> {
+    console.log(id)
+    await db.update(products)
+      .set({
+        isDeleted: false,
+      })
+      .where(eq(products.id, id));
   }
 
   async getOrders(): Promise<Order[]> {

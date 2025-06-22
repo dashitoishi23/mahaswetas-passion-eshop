@@ -13,12 +13,14 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   const headers: Record<string, string> = {
-    ...(data ? { "Content-Type": "application/json" } : {}),
+    ...(data ? data instanceof FormData ? {} : { "Content-Type": "application/json" } : {}),
   };
 
-
   // Add JWT token for admin routes
-  if (url.startsWith('/api/admin') || url.startsWith('/api/orders')) {
+  if (url.startsWith('/api/admin') || url.startsWith('/api/orders') || (
+    url.startsWith('/api/products') && (method === 'POST' 
+    || method === 'DELETE' || method === 'PATCH')
+  )) {
     const token = localStorage.getItem('adminToken');
     console.log({ token })
     if (token) {
@@ -29,7 +31,7 @@ export async function apiRequest(
   const res = await fetch(url, {
     method,
     headers,
-    body: data ? JSON.stringify(data) : undefined,
+    body: data ? data instanceof FormData ? data : JSON.stringify(data) : undefined,
     credentials: 'include',
   });
 

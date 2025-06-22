@@ -18,9 +18,14 @@ const configSchema = z.object({
   RAZORPAY_KEY_ID: z.string(),
   RAZORPAY_KEY_SECRET: z.string(),
 
-  AWS_CLOUD_FRONT_URL: z.string(),
+  AWS_S3_URL: z.string(),
 
   SENDGRID_API_KEY: z.string(),
+
+  AWS_ACCESS_KEY_ID: z.string(),
+  AWS_SECRET_ACCESS_KEY: z.string(),
+  AWS_S3_REGION: z.string(),
+  AWS_S3_BUCKET_NAME: z.string(),
 });
 
 // Validate environment variables
@@ -34,8 +39,12 @@ const config = configSchema.parse({
   JWT_EXPIRY: process.env.JWT_EXPIRY,
   RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
   RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
-  AWS_CLOUD_FRONT_URL: process.env.AWS_CLOUD_FRONT_URL,
+  AWS_S3_URL: process.env.AWS_S3_URL,
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_S3_REGION: process.env.AWS_S3_REGION,
+  AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
 });
 
 export default config;

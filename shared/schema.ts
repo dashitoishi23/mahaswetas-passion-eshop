@@ -1,7 +1,11 @@
-import { date } from "drizzle-orm/mysql-core";
-import { pgTable, text, serial, integer, numeric, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, numeric, timestamp, decimal, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+});
 
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
@@ -10,6 +14,7 @@ export const products = pgTable("products", {
   price: numeric("price").notNull(),
   category: text("category").notNull(),
   imageUrl: text("image_url").array().notNull(),
+  isDeleted: boolean("is_deleted").default(false).notNull(),
 });
 
 export const orders = pgTable("orders", {
@@ -60,6 +65,7 @@ export const insertAdminSchema = createInsertSchema(admins).pick({
   email: true,
 });
 
+export type Category = typeof categories.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;

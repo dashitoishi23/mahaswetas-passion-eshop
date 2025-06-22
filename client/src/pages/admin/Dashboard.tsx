@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import type { Product, Order, InsertProduct } from "@shared/schema";
+import type { Product, Order, InsertProduct, Category } from "@shared/schema";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
-import { Loader2, Plus, LogOut } from "lucide-react";
+import { Loader2, Plus, LogOut, Trash2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import {
   Dialog,
@@ -45,6 +45,17 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useRequireAuth } from "@/lib/auth";
 import { OrderStatusSelect } from "./OrderStatusSelect";
+import { constants } from "@/lib/utils";
+import { z } from "zod";
+import { CategoryData } from "server/routes";
+
+interface AddProductType {
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  imageFiles: File[];
+}
 
 export default function AdminDashboard() {
   useRequireAuth();
@@ -52,15 +63,25 @@ export default function AdminDashboard() {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<InsertProduct>({
-    resolver: zodResolver(insertProductSchema),
+  const form = useForm<AddProductType>({
+    resolver: zodResolver(z.object({
+      name: z.string().min(2, "Name must be at least 2 characters"),
+      description: z.string().min(2, "Description must be at least 2 characters"),
+      price: z.string().min(2, "Price must be at least 2 characters"),
+      category: z.string().min(2, "Category must be at least 2 characters"),
+      imageFiles: z.array(z.instanceof(File)).min(1, "Please upload at least 1 image"),
+    })),
     defaultValues: {
       name: "",
       description: "",
       price: "0",
       category: "Dupattas",
-      imageUrl: [""],
+      imageFiles: [] as File[],
     },
+  });
+
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ["/api/categories/all"],
   });
 
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
@@ -84,8 +105,18 @@ export default function AdminDashboard() {
   });
 
   const { mutate: createProduct, isPending } = useMutation({
-    mutationFn: async (values: InsertProduct) => {
-      const res = await apiRequest("POST", "/api/products", values);
+    mutationFn: async (values: AddProductType) => {
+      const formData = new FormData();
+
+      formData.append("name", values.name);
+      formData.append("description", values.description);
+      formData.append("price", values.price);
+      formData.append("category", values.category);
+      values.imageFiles.forEach((file) => {
+        formData.append(`imageFiles`, file);
+      });
+
+      const res = await apiRequest("POST", "/api/products", formData);
       return res.json();
     },
     onSuccess: () => {
@@ -115,6 +146,48 @@ export default function AdminDashboard() {
       setLocation('/admin/login');
     },
   });
+
+  const { mutate: deleteProduct } = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/products/${id}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const { mutate: restoreProduct } = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("PATCH", `/api/products/${id}/restore`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      toast({
+        title: "Success",
+        description: "Product restored successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  })
 
   if (error?.message === "401: Unauthorized") {
     setLocation("/admin/login");
@@ -209,9 +282,9 @@ export default function AdminDashboard() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {["Dupattas", "Kurtis", "Jewelry"].map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                          {categories?.map((category) => (
+                            <SelectItem key={category.name} value={category.name}>
+                              {category.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -222,12 +295,32 @@ export default function AdminDashboard() {
                 />
                 <FormField
                   control={form.control}
-                  name="imageUrl"
+                  name="imageFiles"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URL</FormLabel>
+                      <FormLabel>Images (up to 4)</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={async (e) => {
+                              const files = Array.from(e.target.files || []).slice(0, 4);
+                              field.onChange(files);
+                            }}
+                          />
+                          <div className="flex gap-2 mt-2">
+                            {Array.isArray(field.value) && field.value.length > 0 && field.value.map((file, idx) => (
+                              <img
+                                key={idx}
+                                src={URL.createObjectURL(file)}
+                                alt={`Preview ${idx + 1}`}
+                                className="w-16 h-16 object-cover rounded border"
+                              />
+                            ))}
+                          </div>
+                        </>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -260,6 +353,7 @@ export default function AdminDashboard() {
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -268,6 +362,37 @@ export default function AdminDashboard() {
                       <TableCell>{product.name}</TableCell>
                       <TableCell>{product.category}</TableCell>
                       <TableCell>₹{product.price}</TableCell>
+                      <TableCell>
+                        {product.isDeleted ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              if(window.confirm('Are you sure you want to restore this product?')) {
+                                restoreProduct(product.id);
+                              }
+                              toast({
+                                title: "Restore",
+                                description: `Restore for product '${product.name}' not implemented.`,
+                              });
+                            }}
+                          >
+                            <RotateCcw className="h-4 w-4 text-primary" />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to delete this product?')) {
+                                deleteProduct(product.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        )}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

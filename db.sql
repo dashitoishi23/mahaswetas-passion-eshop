@@ -5,6 +5,12 @@ CREATE SCHEMA IF NOT EXISTS eshop;
 -- Set search path
 SET search_path TO eshop;
 
+-- Create categories table
+CREATE TABLE IF NOT EXISTS eshop.categories (
+    id SERIAL PRIMARY KEY AUTO_INCREMENT,
+    name TEXT NOT NULL UNIQUE
+);
+
 -- Create tables in eshop schema
 CREATE TABLE IF NOT EXISTS eshop.products (
     id SERIAL PRIMARY KEY,

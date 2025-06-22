@@ -7,12 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import type { Product } from "@shared/schema";
 import { useCart } from "@/lib/cart";
 import { useToast } from "@/hooks/use-toast";
-import { constants } from "@/lib/utils";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { addItem } = useCart();
-  const { toast } = useToast();
 
   const { data: product, isLoading, error } = useQuery<Product>({
     queryKey: ["/api/products", id],
@@ -28,10 +26,6 @@ export default function ProductDetails() {
   const handleAddToCart = () => {
     if (product) {
       addItem(product);
-      toast({
-        title: "Added to cart",
-        description: `${product.name} has been added to your cart.`,
-      });
     }
   };
 
@@ -93,12 +87,12 @@ export default function ProductDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Product Image */}
         <div className="space-y-4">
-          <div className="relative aspect-square overflow-hidden rounded-lg border"
-          id="main-image">
+          <div className="relative aspect-square overflow-hidden rounded-lg border">
             <img
               src={product.imageUrl[0]}
               alt={product.name}
               className="object-cover w-full h-full"
+              id="main-image"
             />
           </div>
           {/* Thumbnail Images */}
@@ -111,6 +105,7 @@ export default function ProductDetails() {
                     alt={`${product.name} view ${index + 1}`}
                     className="object-cover w-full h-full"
                     onClick={() => {
+                      // Update main image when thumbnail is clicked
                       const mainImage = document.getElementById(
                         "main-image"
                       ) as HTMLImageElement;
@@ -140,40 +135,6 @@ export default function ProductDetails() {
             <p className="text-muted-foreground leading-relaxed">
               {product.description}
             </p>
-          </div>
-
-          {/* Product Features */}
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Features</h3>
-            <ul className="space-y-2 text-muted-foreground">
-              {constants.defaultCategoryFeatures[product.category as keyof typeof constants.defaultCategoryFeatures]
-              .map((feature: string, index: number) => (
-                <li key={index}>• {feature}</li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Care Instructions */}
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Care Instructions</h3>
-            <div className="bg-muted/50 p-4 rounded-lg">
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                {product.category === "Jewellery" ? (
-                  <>
-                    <li>• Store in a dry place away from moisture</li>
-                    <li>• Clean gently with a soft cloth</li>
-                    <li>• Avoid contact with perfumes and chemicals</li>
-                  </>
-                ) : (
-                  <>
-                    <li>• Hand wash or gentle machine wash</li>
-                    <li>• Use mild detergent</li>
-                    <li>• Air dry in shade</li>
-                    <li>• Iron on low heat if needed</li>
-                  </>
-                )}
-              </ul>
-            </div>
           </div>
 
           {/* Add to Cart Button */}

@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { ProductCard } from "@/components/ProductCard";
 import { CATEGORIES, type Product } from "@shared/schema";
-import { useSearch } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { CategoryData } from "server/routes";
 
 export default function ProductCatalog() {
-  // const [search] = useSearch();
-  // const searchParams = new URLSearchParams(search);
-  // const currentCategory = searchParams.get("category");
+  const [category, setCategory] = useState(window.location.search.split('=')[1] || 'all');
 
-  const [category, setCategory] = useState('all');
+  const { data: categories } = useQuery<CategoryData[]>({
+    queryKey: ["/api/categories"],
+  });
 
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", category],
@@ -23,8 +23,6 @@ export default function ProductCatalog() {
       return response.json();
     }
   });
-
-  console.log(category)
 
   if (isLoading) {
     return (
@@ -51,27 +49,26 @@ export default function ProductCatalog() {
         >
           All
         </Button>
-        {CATEGORIES.map((catalogCategory) => (
+        {categories.map((catalogCategory) => (
           <Button
-            key={catalogCategory}
-            variant={category === catalogCategory ? "default" : "outline"}
-            onClick={() => setCategory(catalogCategory)}
+            key={catalogCategory.name}
+            variant={category === catalogCategory.name ? "default" : "outline"}
+            onClick={() => setCategory(catalogCategory.name)}
           >
-            {catalogCategory}
+            {catalogCategory.name}
           </Button>
         ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {/* {category === 'all' ? products?.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        )) : products?.filter(product => product.category === category).map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))} */}
         {
-          products?.map((product) => (
+          products?.length! > 0 ? products?.map((product) => (
             <ProductCard key={product.id} product={product} />
-          ))
+          )) : (            
+            <div className="col-span-1 md:col-span-3 lg:col-span-4 text-center text-muted-foreground">
+              <p>No products found. Check back later</p>
+            </div>
+          )
         }
       </div>
     </div>
