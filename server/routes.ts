@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertProductSchema } from "@shared/schema";
+import { insertOrderSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
 import Razorpay from 'razorpay';
@@ -96,6 +96,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Protected admin routes
+
+  app.post("/api/categories", auth.jwtAuth, async (req, res) => {
+    const category = insertCategorySchema.parse(req.body);
+    await storage.addCategory(category);
+    res.json(category);
+  });
+
   app.get("/api/orders", auth.jwtAuth, async (_req, res) => {
     const orders = await storage.getOrders();
     res.json(orders);

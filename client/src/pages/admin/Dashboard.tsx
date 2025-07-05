@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import type { Product, Order, InsertProduct, Category } from "@shared/schema";
+import type { Product, Order, InsertProduct, Category, InsertCategory } from "@shared/schema";
 import {
   Table,
   TableBody,
@@ -48,6 +48,7 @@ import { OrderStatusSelect } from "./OrderStatusSelect";
 import { constants } from "@/lib/utils";
 import { z } from "zod";
 import { CategoryData } from "server/routes";
+import { add } from "date-fns";
 
 interface AddProductType {
   name: string;
@@ -57,10 +58,15 @@ interface AddProductType {
   imageFiles: File[];
 }
 
+interface AddCategoryType {
+  name: string;
+}
+
 export default function AdminDashboard() {
   useRequireAuth();
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
+  const [addCategoryDialogOpen, setAddCategoryDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<AddProductType>({
@@ -77,6 +83,15 @@ export default function AdminDashboard() {
       price: "0",
       category: "Dupattas",
       imageFiles: [] as File[],
+    },
+  });
+
+  const addCategoryForm = useForm<InsertCategory>({
+    resolver: zodResolver(z.object({
+      name: z.string().min(2, "Name must be at least 2 characters"),
+    })),
+    defaultValues: {
+      name: "",
     },
   });
 
@@ -102,6 +117,24 @@ export default function AdminDashboard() {
       if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
       return response.json();
     }
+  });
+
+  const { mutate: createCategory, isPending: isPendingCategory } = useMutation({
+    mutationFn: async (values: AddCategoryType) => {
+      const res = await apiRequest("POST", "/api/categories", values);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      setAddCategoryDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const { mutate: createProduct, isPending } = useMutation({
@@ -328,6 +361,42 @@ export default function AdminDashboard() {
                 />
                 <Button type="submit" className="w-full" disabled={isPending}>
                   {isPending ? "Creating..." : "Create Product"}
+                </Button>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={addCategoryDialogOpen} onOpenChange={setAddCategoryDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Category
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Category</DialogTitle>
+            </DialogHeader>
+            <Form {...addCategoryForm}>
+              <form
+                onSubmit={addCategoryForm.handleSubmit((values) => createCategory(values))}
+                className="space-y-4"
+              >
+                <FormField
+                  control={addCategoryForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isPendingCategory}>
+                  {isPendingCategory ? "Creating..." : "Create Category"}
                 </Button>
               </form>
             </Form>

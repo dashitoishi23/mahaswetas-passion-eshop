@@ -65,7 +65,12 @@ export const insertAdminSchema = createInsertSchema(admins).pick({
   email: true,
 });
 
+export const insertCategorySchema = createInsertSchema(categories).pick({
+  name: true,
+});
+
 export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;

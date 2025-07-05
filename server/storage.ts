@@ -1,4 +1,4 @@
-import { products, orders, admins, type Product, type InsertProduct, type Order, type InsertOrder, type Admin, type InsertAdmin, Category, categories } from "@shared/schema";
+import { products, orders, admins, type Product, type InsertProduct, type Order, type InsertOrder, type Admin, type InsertAdmin, Category, categories, InsertCategory } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
 
@@ -119,6 +119,10 @@ export class DatabaseStorage implements IStorage {
       .from(admins)
       .where(eq(admins.email, email));
     return admin;
+  }
+
+  async addCategory(category: InsertCategory): Promise<void> {
+    await db.insert(categories).values(category);
   }
 
   async updateAdminResetToken(id: number, token: string | null, expiry: Date | null): Promise<void> {
