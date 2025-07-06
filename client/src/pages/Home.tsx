@@ -22,8 +22,7 @@ export default function Home() {
                 <span className="text-primary">Modern Expression</span>
               </h1>
               <p className="text-lg mb-8 text-muted-foreground">
-                Discover our collection of handmade traditional wear and
-                sustainable recycled jewelry.
+                Discover handmade traditional wear and accessories
               </p>
               <Button
                 size="lg"

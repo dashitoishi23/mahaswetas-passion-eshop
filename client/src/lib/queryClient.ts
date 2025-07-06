@@ -18,7 +18,8 @@ export async function apiRequest(
 
   // Add JWT token for admin routes
   if (url.startsWith('/api/admin') || url.startsWith('/api/orders') || (
-    url.startsWith('/api/products') && (method === 'POST' 
+    url.startsWith('/api/products') || (url.startsWith('/api/categories')) 
+    && (method === 'POST' 
     || method === 'DELETE' || method === 'PATCH')
   )) {
     const token = localStorage.getItem('adminToken');

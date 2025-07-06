@@ -18,10 +18,7 @@ function Navigation() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <nav className="flex items-center gap-6">
           <Link href="/" className="font-semibold text-lg">
-            Artisan Wear
-          </Link>
-          <Link href="/catalog" className="text-muted-foreground hover:text-foreground">
-            Shop
+            Mahaswetas Passion
           </Link>
         </nav>
         <CartOverlay />

@@ -125,7 +125,7 @@ export default function AdminDashboard() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/categories/all"] });
       setAddCategoryDialogOpen(false);
     },
     onError: (error: Error) => {
