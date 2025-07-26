@@ -15,6 +15,7 @@ export const products = pgTable("products", {
   category: text("category").notNull(),
   imageUrl: text("image_url").array().notNull(),
   isDeleted: boolean("is_deleted").default(false).notNull(),
+  size: text("size").array().default(["Free Size"]).notNull(),
 });
 
 export const orders = pgTable("orders", {
@@ -44,7 +45,8 @@ export const insertProductSchema = createInsertSchema(products).pick({
   description: true,
   price: true,
   category: true,
-  imageUrl: true
+  imageUrl: true,
+  size: true,
 });
 
 export const insertOrderSchema = createInsertSchema(orders).pick({

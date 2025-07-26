@@ -33,6 +33,14 @@ export const constants = {
     completed: "Completed",
     cancelled: "Cancelled",
   },
+  sizes:[
+    "Free Size",
+    "S",
+    "M",
+    "L",
+    "XL", 
+    "XXL",
+  ]
 }
 
 export const states = [

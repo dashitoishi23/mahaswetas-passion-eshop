@@ -7,10 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import type { Product } from "@shared/schema";
 import { useCart } from "@/lib/cart";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Select, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SelectContent } from "@radix-ui/react-select";
+import { constants } from "@/lib/utils";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { addItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState<string>("Free Size");
 
   const { data: product, isLoading, error } = useQuery<Product>({
     queryKey: ["/api/products", id],
@@ -25,11 +30,12 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (product) {
-      addItem(product);
+      addItem({
+        ...product,
+        name: `${product.name} - (${selectedSize})`,
+      });
     }
   };
-
-    console.log({ product })
 
   if (isLoading) {
     return (
@@ -135,6 +141,24 @@ export default function ProductDetails() {
             <p className="text-muted-foreground leading-relaxed">
               {product.description}
             </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Size</h3>
+            <Select
+              onValueChange={(value) => setSelectedSize(value)}
+              value={selectedSize}>
+                <SelectTrigger>
+                  <SelectValue>{selectedSize}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {constants.sizes.map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+            </Select>
           </div>
 
           {/* Add to Cart Button */}

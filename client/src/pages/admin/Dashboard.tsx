@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CheckboxGroup } from '@radix-ui/themes'
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +57,7 @@ interface AddProductType {
   price: string;
   category: string;
   imageFiles: File[];
+  size: string[];
 }
 
 interface AddCategoryType {
@@ -76,6 +78,7 @@ export default function AdminDashboard() {
       price: z.string().min(2, "Price must be at least 2 characters"),
       category: z.string().min(2, "Category must be at least 2 characters"),
       imageFiles: z.array(z.instanceof(File)).min(1, "Please upload at least 1 image"),
+      size: z.array(z.string()).min(1, "Please select at least 1 size"),
     })),
     defaultValues: {
       name: "",
@@ -83,6 +86,7 @@ export default function AdminDashboard() {
       price: "0",
       category: "Dupattas",
       imageFiles: [] as File[],
+      size: ["Free Size"],
     },
   });
 
@@ -299,6 +303,21 @@ export default function AdminDashboard() {
                     </FormItem>
                   )}
                 />
+                <FormField control={form.control}
+                name="size"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Size</FormLabel>
+                    <CheckboxGroup.Root value={field.value} onValueChange={field.onChange}>
+                      {constants.sizes.map((size) => (
+                        <CheckboxGroup.Item key={size} value={size}>
+                          {size}
+                        </CheckboxGroup.Item>
+                      ))}
+                    </CheckboxGroup.Root>
+                  </FormItem>
+                )} />
+
                 <FormField
                   control={form.control}
                   name="category"

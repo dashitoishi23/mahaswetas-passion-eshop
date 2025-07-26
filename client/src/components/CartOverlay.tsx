@@ -52,7 +52,7 @@ export function CartOverlay() {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                    onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.product.name)}
                     disabled={item.quantity <= 1}
                   >
                     <Minus className="h-4 w-4" />
@@ -62,7 +62,7 @@ export function CartOverlay() {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.product.name)}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -70,7 +70,7 @@ export function CartOverlay() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 ml-auto"
-                    onClick={() => removeItem(item.product.id)}
+                    onClick={() => removeItem(item.product.id, item.product.name)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

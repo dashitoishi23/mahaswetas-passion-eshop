@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS eshop.products (
     description TEXT NOT NULL,
     price DECIMAL NOT NULL,
     category TEXT NOT NULL,
-    image_url TEXT[] NOT NULL
+    image_url TEXT[] NOT NULL,
+    size TEXT[] NOT NULL DEFAULT 'Free Size',
 );
 
 CREATE TABLE IF NOT EXISTS eshop.orders (
