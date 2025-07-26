@@ -9,7 +9,7 @@ import { useCart } from "@/lib/cart";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Select, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SelectContent } from "@radix-ui/react-select";
+import { SelectContent } from "@/components/ui/select";
 import { constants } from "@/lib/utils";
 
 export default function ProductDetails() {
@@ -152,7 +152,7 @@ export default function ProductDetails() {
                   <SelectValue>{selectedSize}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {constants.sizes.map((size) => (
+                  {product.size.map((size) => (
                     <SelectItem key={size} value={size}>
                       {size}
                     </SelectItem>
@@ -160,7 +160,7 @@ export default function ProductDetails() {
                 </SelectContent>
             </Select>
           </div>
-
+                  
           {/* Add to Cart Button */}
           <Button 
             size="lg" 

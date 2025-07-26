@@ -149,6 +149,9 @@ export default function AdminDashboard() {
       formData.append("description", values.description);
       formData.append("price", values.price);
       formData.append("category", values.category);
+      values.size.forEach((size) => {
+        formData.append(`size`, size);
+      });
       values.imageFiles.forEach((file) => {
         formData.append(`imageFiles`, file);
       });
