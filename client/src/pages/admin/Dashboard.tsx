@@ -25,7 +25,7 @@ import { CheckboxGroup } from '@radix-ui/themes'
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertProductSchema } from "@shared/schema";
+import "@radix-ui/themes/styles.css";
 import {
   Form,
   FormControl,

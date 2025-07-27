@@ -11,6 +11,7 @@ import AdminLogin from "@/pages/admin/Login";
 import ProductDetails from "@/pages/ProductDetails";
 import { CartOverlay } from "@/components/CartOverlay";
 import OrderSuccess from "./pages/OrderSuccess";
+import { Theme } from "@radix-ui/themes";
 
 function Navigation() {
   return (
@@ -47,6 +48,7 @@ function Router() {
 
 function App() {
   return (
+    <Theme>
     <QueryClientProvider client={queryClient}>
       <Navigation />
       <main>
@@ -54,6 +56,7 @@ function App() {
       </main>
       <Toaster />
     </QueryClientProvider>
+    </Theme>
   );
 }
 
