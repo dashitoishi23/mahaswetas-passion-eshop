@@ -12,6 +12,12 @@ import ProductDetails from "@/pages/ProductDetails";
 import { CartOverlay } from "@/components/CartOverlay";
 import OrderSuccess from "./pages/OrderSuccess";
 import { Theme } from "@radix-ui/themes";
+import { Footer } from "./components/Footer";
+import TermsAndConditions from "./components/TAndC";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import ShippingPolicy from "./components/ShippingPolicy";
+import ContactUs from "./components/ContactUs";
+import Cancellation from "./components/Cancellation";
 
 function Navigation() {
   return (
@@ -41,6 +47,11 @@ function Router() {
       <Route path="/product/:id" component={ProductDetails} />
       <Route path="/orderSuccess" component={OrderSuccess} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/terms" component={TermsAndConditions} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/shipping" component={ShippingPolicy} />
+      <Route path="/contact" component={ContactUs} />
+      <Route path="/refunds" component={Cancellation} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -54,6 +65,7 @@ function App() {
       <main>
         <Router />
       </main>
+      <Footer />
       <Toaster />
     </QueryClientProvider>
     </Theme>
