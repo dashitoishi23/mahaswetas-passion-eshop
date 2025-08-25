@@ -81,8 +81,11 @@ export default function Checkout() {
         address,
         phoneNumber: values.phoneNumber,
         total: total().toFixed(2),
-        items: items.map(item => `${item.product.name} (${item.quantity})`),
-
+        items: items.map(item => ({
+                id: item.product.id,
+                name: item.product.name,
+                quantity: item.quantity,
+        })),
       });
 
       const responseBody = await response.json();
@@ -107,7 +110,11 @@ export default function Checkout() {
               address,
               phoneNumber: values.phoneNumber,
               total: total().toFixed(2),
-              items: items.map(item => `${item.product.name} (${item.quantity})`),
+              items: items.map(item => ({
+                id: item.product.id,
+                name: item.product.name,
+                quantity: item.quantity,
+              })),
             }
           });
           razorpayResponse = response;

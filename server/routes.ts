@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertOrderSchema, insertProductSchema, insertCategorySchema } from "@shared/schema";
+import { insertOrderSchema, insertProductSchema, insertCategorySchema, Product } from "@shared/schema";
 import { z } from "zod";
 import { setupAuth } from "./auth";
 import Razorpay from 'razorpay';
@@ -192,13 +192,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", async (req, res) => {
     try {
-      const orderData = insertOrderSchema.parse(req.body);
+      const orderData = req.body;
       
       // Create an order in database
       const instance = new Razorpay({
         key_id: config.RAZORPAY_KEY_ID,
         key_secret: config.RAZORPAY_KEY_SECRET,
       });
+
+      const productPromises = orderData.items.map((item: any) => storage.getProduct(item.id));
+      const products: Product[] = await Promise.all(productPromises);
+      
+      const orderTotal = products.reduce((total, product, index) => {
+        if (product) {
+          const item = orderData.items[index];
+          return total + Number(product.price) * item.quantity;
+        }
+        return total;
+      }, 0.0);
+
+      if (orderTotal !== Number.parseFloat(orderData.total)) {
+        return res.status(400).json({ message: "Invalid order data" });
+      }
 
       const razorpayOrder = await instance.orders.create({
         amount: Math.round(Number.parseFloat(orderData.total) * 100),
@@ -231,6 +246,21 @@ app.post("/api/orders/verify", async (req, res) => {
       paymentId: paymentId,
       status: constants.orderStatuses.pending,
     });
+
+    const productPromises = orderMetaData.items.map((item: any) => storage.getProduct(item.id));
+    const products: Product[] = await Promise.all(productPromises);
+    
+    const orderTotal = products.reduce((total, product, index) => {
+      if (product) {
+        const item = orderMetaData.items[index];
+        return total + Number(product.price) * item.quantity;
+      }
+      return total;
+    }, 0.0);
+
+    if (orderTotal !== Number.parseFloat(orderMetaData.total)) {
+      return res.status(400).json({ verified: false });
+    }
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
