@@ -7,7 +7,7 @@ SET search_path TO eshop;
 
 -- Create categories table
 CREATE TABLE IF NOT EXISTS eshop.categories (
-    id SERIAL PRIMARY KEY AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE
 );
 
