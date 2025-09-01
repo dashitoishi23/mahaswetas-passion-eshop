@@ -1,11 +1,9 @@
 // Load environment variables from .env file in development
-if (process.env.NODE_ENV !== 'production') {
-  (async () => {
-    const dotenv = await import('dotenv');
-    dotenv.config();
-    console.log('Environment variables loaded from .env file');
-  })();
-}
+(async () => {
+  const dotenv = await import('dotenv');
+  dotenv.config();
+  console.log('Environment variables loaded from .env file');
+})();
 
 import express, { type NextFunction, Request, Response } from "express";
 import { setupVite } from "./vite";
