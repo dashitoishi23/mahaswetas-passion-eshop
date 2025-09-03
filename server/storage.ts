@@ -180,4 +180,3 @@ export class DatabaseStorage implements IStorage {
 
 export const storage = new DatabaseStorage();
 // Initialize sample products
-storage.initializeProducts().catch(console.error);
