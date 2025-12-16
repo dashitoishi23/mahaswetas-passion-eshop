@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS eshop.products (
     price DECIMAL NOT NULL,
     category TEXT NOT NULL,
     image_url TEXT[] NOT NULL,
-    size TEXT[] NOT NULL DEFAULT 'Free Size',
+    size TEXT[] NOT NULL DEFAULT ARRAY['Free Size']
 );
 
 CREATE TABLE IF NOT EXISTS eshop.orders (
