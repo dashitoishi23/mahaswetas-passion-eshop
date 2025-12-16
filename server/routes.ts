@@ -67,6 +67,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(products);
   });
 
+  app.get("/api/products/all", async (_req, res) => {
+    let products = await storage.getAllProducts();
+    products = await Promise.all(
+      products.map(async (product) => {
+        product.imageUrl = await generateSignedUrl(product.imageUrl);
+        return product;
+    })
+  );
+    res.json(products);
+  });
+
   app.get("/api/products/category/:category", async (req, res) => {
     let products = await storage.getProductsByCategory(req.params.category);
     products = await Promise.all(

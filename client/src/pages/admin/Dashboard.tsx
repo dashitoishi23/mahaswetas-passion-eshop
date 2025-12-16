@@ -104,7 +104,7 @@ export default function AdminDashboard() {
   });
 
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/api/products/all"],
   });
 
   const { data: orders, isLoading: isLoadingOrders, error } = useQuery<Order[]>({
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/products", "api/products/all"] });
       toast({
         title: "Success",
         description: "Product deleted successfully",

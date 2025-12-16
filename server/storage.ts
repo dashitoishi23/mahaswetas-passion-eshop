@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 export interface IStorage {
   getCategories(): Promise<Category[]>;
   getProducts(): Promise<Product[]>;
+  getAllProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
@@ -24,6 +25,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProducts(): Promise<Product[]> {
+    return await db.select().from(products)
+      .where(eq(products.isDeleted, false));
+  }
+
+  async getAllProducts(): Promise<Product[]> {
     return await db.select().from(products);
   }
 
