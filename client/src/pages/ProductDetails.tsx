@@ -28,14 +28,14 @@ export default function ProductDetails() {
     },
   });
 
-  const handleAddToCart = () => {
-    if (product) {
-      addItem({
-        ...product,
-        name: `${product.name} - (${selectedSize})`,
-      });
-    }
-  };
+  // const handleAddToCart = () => {
+  //   if (product) {
+  //     addItem({
+  //       ...product,
+  //       name: `${product.name} - (${selectedSize})`,
+  //     });
+  //   }
+  // };
 
   if (isLoading) {
     return (
@@ -162,14 +162,15 @@ export default function ProductDetails() {
           </div>
                   
           {/* Add to Cart Button */}
-          <Button 
+          {/* <Button 
             size="lg" 
             className="w-full" 
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
             Add to Cart
-          </Button>
+          </Button> */}
+          <p className="text-3xl font-bold text-primary">To place an order for this product, drop a message on WhatsApp on +91-8433922939</p>
         </div>
       </div>
     </div>

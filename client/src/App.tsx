@@ -9,7 +9,7 @@ import Checkout from "@/pages/Checkout";
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminLogin from "@/pages/admin/Login";
 import ProductDetails from "@/pages/ProductDetails";
-import { CartOverlay } from "@/components/CartOverlay";
+// import { CartOverlay } from "@/components/CartOverlay";
 import OrderSuccess from "./pages/OrderSuccess";
 import { Theme } from "@radix-ui/themes";
 import { Footer } from "./components/Footer";
@@ -28,7 +28,6 @@ function Navigation() {
             Mahaswetas Passion
           </Link>
         </nav>
-        <CartOverlay />
       </div>
     </header>
   );
@@ -42,10 +41,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/catalog" component={ProductCatalog} />
-      <Route path="/checkout" component={Checkout} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/product/:id" component={ProductDetails} />
-      <Route path="/orderSuccess" component={OrderSuccess} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/terms" component={TermsAndConditions} />
       <Route path="/privacy" component={PrivacyPolicy} />
