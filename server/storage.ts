@@ -132,6 +132,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async initializeAdmin(admin: InsertAdmin): Promise<void> {
+    const res = await db.select()
+      .from(admins)
+      .where(eq(admins.username, admin.username));
+    if (res.length > 0) {
+      return;
+    }
     await db.insert(admins).values(admin);
   }
 
