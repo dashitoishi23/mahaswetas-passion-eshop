@@ -132,10 +132,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async initializeAdmin(admin: InsertAdmin): Promise<void> {
-    const existingAdmin = await this.getAdminByUsername(admin.username);
-    if (!existingAdmin) {
-      throw new Error(`Admin user ${admin.username} not found`);
-    }
+    await db.insert(admins).values(admin);
   }
 
   // Initialize sample products if none exist
