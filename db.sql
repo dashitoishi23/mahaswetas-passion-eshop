@@ -8,8 +8,7 @@ SET search_path TO eshop;
 -- Create categories table
 CREATE TABLE IF NOT EXISTS eshop.categories (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+    name TEXT NOT NULL UNIQUE
 );
 
 -- Create tables in eshop schema
@@ -20,7 +19,8 @@ CREATE TABLE IF NOT EXISTS eshop.products (
     price DECIMAL NOT NULL,
     category TEXT NOT NULL,
     image_url TEXT[] NOT NULL,
-    size TEXT[] NOT NULL DEFAULT ARRAY['Free Size']
+    size TEXT[] NOT NULL DEFAULT ARRAY['Free Size'],
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS eshop.orders (
