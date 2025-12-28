@@ -22,7 +22,6 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="text-sm text-muted-foreground mb-2">
           {product.description}
         </p>
-        <p className="text-lg font-bold">₹{product.price}</p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Link href={`/product/${product.id}`}>

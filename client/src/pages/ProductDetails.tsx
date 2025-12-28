@@ -133,7 +133,6 @@ export default function ProductDetails() {
               {product.category}
             </Badge>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-3xl font-bold text-primary">₹{product.price}</p>
           </div>
 
           <div>
@@ -143,7 +142,7 @@ export default function ProductDetails() {
             </p>
           </div>
 
-          <div>
+          {/* <div>
             <h3 className="text-lg font-semibold mb-2">Size</h3>
             <Select
               onValueChange={(value) => setSelectedSize(value)}
@@ -159,7 +158,7 @@ export default function ProductDetails() {
                   ))}
                 </SelectContent>
             </Select>
-          </div>
+          </div> */}
                   
           {/* Add to Cart Button */}
           {/* <Button 
