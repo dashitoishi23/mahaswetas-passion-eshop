@@ -159,6 +159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(product);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error(error);
         return res.status(400).json({ message: "Invalid product data" });
       }
       //delete uploaded files from S3 if there was an error
