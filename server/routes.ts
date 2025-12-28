@@ -109,9 +109,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Protected admin routes
 
   app.post("/api/categories", auth.jwtAuth, async (req, res) => {
-    const category = insertCategorySchema.parse(req.body);
-    await storage.addCategory(category);
-    res.json(category);
+    try{
+      const category = insertCategorySchema.parse(req.body);
+      await storage.addCategory(category);
+      res.status(201).json(category);
+    }
+    catch(error){
+      console.error(error);
+      return res.status(400).json({ message: "Invalid category data" });
+    }
   });
 
   app.get("/api/orders", auth.jwtAuth, async (_req, res) => {
@@ -150,6 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       )
       const newProductData = {
         ...req.body,
+        size: [...req.body.size],
         imageUrl: awsUrls,
       }
       //deleting imageFiles to prevent unnecessary data being passed around
